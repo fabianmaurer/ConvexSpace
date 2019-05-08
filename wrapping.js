@@ -59,6 +59,8 @@ let particleSim=false;
 
 let center={};
 
+let hullDimensions={};
+
 $('#main').click(function(e){
     let x=e.clientX;
     let y=e.clientY;
@@ -72,12 +74,30 @@ function addPoint(x,y){
         hull=giftWrapping();
         drawPolygon(hull);
         center=getCenter(hull);
+        getHullDimensions();
     }else if(points.length>3){
         let old=JSON.parse(JSON.stringify(hull));
         hull=giftWrapping();
+        getHullDimensions();
         if(drawPolygonChange(hull,old)){
             addParticle(stars[stars.length-1]);
         };
+    }
+}
+
+function getHullDimensions(){
+    let minx=Number.MAX_SAFE_INTEGER,miny=Number.MAX_SAFE_INTEGER,maxx=0,maxy=0;
+    for(let p of hull){
+        if(p.x<minx) minx=p.x;
+        if(p.y<miny) miny=p.y;
+        if(p.x>maxx) maxx=p.x;
+        if(p.y>maxy) maxy=p.y;
+    }
+    hullDimensions={
+        minx:minx-10,
+        miny:miny-10,
+        w:maxx-minx+20,
+        h:maxy-miny+20
     }
 }
 
@@ -304,8 +324,14 @@ function displayLoop(){
         move();
     }
     drawPoints(stars);
-    ctx.drawImage(canL,0,0,canL.width,canL.height);
-    ctx.drawImage(canP,0,0);
+    if(hullDimensions.minx==null){
+        ctx.drawImage(canL,0,0,w,h);
+    ctx.drawImage(canP,0,0,w,h);
+    }else{
+        ctx.drawImage(canL,hullDimensions.minx,hullDimensions.miny,hullDimensions.w,hullDimensions.h,hullDimensions.minx,hullDimensions.miny,hullDimensions.w,hullDimensions.h);
+    ctx.drawImage(canP,hullDimensions.minx,hullDimensions.miny,hullDimensions.w,hullDimensions.h,hullDimensions.minx,hullDimensions.miny,hullDimensions.w,hullDimensions.h);
+    }
+    
     requestAnimationFrame(displayLoop);
 }
 
