@@ -341,7 +341,7 @@ function drawPoints(points){
         p.r += p.rChange;
         
         ctxP.moveTo(p.x,p.y);
-        ctxP.arc(p.x,p.y,p.r,0,2*Math.PI);
+        ctxP.arc(p.x,p.y,p.r*2,0,2*Math.PI);
     }
     
     ctxP.fill();
@@ -350,7 +350,7 @@ function drawPoints(points){
 
 function drawPolygon(points){
     ctxL.strokeStyle='rgba(255,255,255,0.2)'
-    ctxL.lineWidth=3
+    ctxL.lineWidth=6
     ctxL.beginPath();
     ctxL.moveTo(points[points.length-1].x,points[points.length-1].y);
     for(let p of points){
