@@ -291,6 +291,10 @@ function addParticle(p){
     p.vy=0;
     particles.push(p);
     if(particles.length==1){
+        p.x+=p.x>center.x?-1:1;
+        p.y+=p.y>center.y?-1:1;
+        
+        
         particleSim=true;
     }
 }
