@@ -42,7 +42,7 @@ let stars=[];
 let randomness=0;
 let initialVelocityFactor = 1;
 
-let forceCutoff = 0.00004;
+let forceCutoff = 0.00003;
 let speed = 4000;
 
 let different=[]
@@ -57,6 +57,8 @@ let particles=[];
 
 let particleSim=false;
 
+let center={};
+
 $('#main').click(function(e){
     let x=e.clientX;
     let y=e.clientY;
@@ -69,6 +71,7 @@ function addPoint(x,y){
     if(points.length==3){
         hull=giftWrapping();
         drawPolygon(hull);
+        center=getCenter(hull);
     }else if(points.length>3){
         let old=JSON.parse(JSON.stringify(hull));
         hull=giftWrapping();
@@ -76,6 +79,16 @@ function addPoint(x,y){
             addParticle(stars[stars.length-1]);
         };
     }
+}
+
+function getCenter(polygon){
+    x=0;
+    y=0;
+    for(let p of polygon){
+        x+=p.x/polygon.length;
+        y+=p.y/polygon.length;
+    }
+    return {x:x,y:y}
 }
 
 function getPerpendicularPoint(x1,y1,x2,y2,x3,y3){
@@ -162,10 +175,6 @@ function drawPolygonChange(points,oldPoints){
     }else{
         let i=findExtra(points,oldPoints);
         let j=findExtra(oldPoints,points);
-        console.log(i)
-        console.log(j)
-        console.log(points)
-        console.log(oldPoints)
         if(i==null){
             // stars.pop();
             return true;
@@ -179,7 +188,6 @@ function drawPolygonChange(points,oldPoints){
         polygonAnimationLoop(points,[i],target.x,target.y,0);
     }
     
-    console.log(removed)
     
     for(let r of removed){
         addParticle(getStar(r.x))
@@ -218,37 +226,32 @@ function calculateMovement() {
     }
 }
 
+function isPointInPolygon(poly, pt){
+    for(var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
+        ((poly[i].y <= pt.y && pt.y < poly[j].y) || (poly[j].y <= pt.y && pt.y < poly[i].y))
+        && (pt.x < (poly[j].x - poly[i].x) * (pt.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x)
+        && (c = !c);
+    return c;
+}
+
 function move() {
     for (let i = 0; i < particles.length; i++) {
         particles[i].lastx = particles[i].x;
         particles[i].lasty = particles[i].y;
         particles[i].x += particles[i].vx;
         particles[i].y += particles[i].vy;
-            if (particles[i].x < 0 || particles[i].x > w) {
-                let x=getRandomXPos();
-                let y=getRandomYPos();
-                particles[i].x = x;
-                particles[i].y = y;
-                particles[i].lastx=x;
-                particles[i].lasty=y;
-                particles[i].lastax = 0;
-                particles[i].lastay = 0;
-                particles[i].vx = (randomness * (Math.random() - 0.5)) * initialVelocityFactor;
-                particles[i].vy = (randomness * (Math.random() - 0.5)) * initialVelocityFactor;
-
-            }
-            if (particles[i].y < 0 || particles[i].y > h) {
-                let x=getRandomXPos();
-                let y=getRandomYPos();
-                particles[i].x = x;
-                particles[i].y = y;
-                particles[i].lastx=x;
-                particles[i].lasty=y;
-                particles[i].lastax = 0;
-                particles[i].lastay = 0;
-                particles[i].vx = (randomness * (Math.random() - 0.5)) * initialVelocityFactor;
-                particles[i].vy = (randomness * (Math.random() - 0.5)) * initialVelocityFactor;
-            }
+        if(!isPointInPolygon(hull,particles[i])){
+            let x=center.x-25+Math.random()*50;
+            let y=center.y-25+Math.random()*50;
+            particles[i].x = x;
+            particles[i].y = y;
+            particles[i].lastx=x;
+            particles[i].lasty=y;
+            particles[i].lastax = 0;
+            particles[i].lastay = 0;
+            particles[i].vx = (randomness * (Math.random() - 0.5)) * initialVelocityFactor;
+            particles[i].vy = (randomness * (Math.random() - 0.5)) * initialVelocityFactor;
+        }
 
     }
 }
@@ -264,15 +267,12 @@ function removeStar(x){
 
 function addParticle(p){
     speed=Math.min(6000,16000/particles.length);
-    console.log('add particle')
-    console.log(p)
     p.vx=0;
     p.vy=0;
     particles.push(p);
     if(particles.length==1){
         particleSim=true;
     }
-    console.log(particles)
 }
 
 displayLoop();
@@ -281,7 +281,6 @@ function displayLoop(){
     ctx.clearRect(0,0,w,h);
     if(polygonAnimation){
         let j=0;
-        // console.log(is)
         for(let i of is){
             displaySet[i].x=oldPoints[j].x+(tx-displaySet[i].x)*smooth(animProgress)/animationFrames;
             displaySet[i].y=oldPoints[j].y+(ty-displaySet[i].y)*smooth(animProgress)/animationFrames;
