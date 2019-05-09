@@ -365,7 +365,7 @@ function polygonAnimationLoop(points,_is,_tx,_ty,progress){
 }
 
 function smooth(n){
-    return (animationFrames*(1-Math.pow(1-n/animationFrames,5)));
+    return (animationFrames*(1-Math.pow(1-n/animationFrames,2)));
 }
 
 function drawPoints(points){
