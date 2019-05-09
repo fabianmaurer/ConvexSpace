@@ -42,6 +42,8 @@ let stars=[];
 let randomness=0;
 let initialVelocityFactor = 1;
 
+colorGradient=[[0.2,0.2,0.8],[1,0,0],[1,1,1]];
+
 let forceCutoff = 0.00003;
 let speed = 4000;
 
@@ -69,7 +71,9 @@ $('#main').click(function(e){
 
 function addPoint(x,y){
     points.push({x:x,y:y});
-    stars.push({x:x,y:y,r:1.5,rChange:0.015,maxR:Math.random()*0.5+2,minR:Math.random()*0.5+0.5})
+    let r1=Math.random()*0.5+1.5;
+    let r2=Math.random()*0.5+0.5;
+    stars.push({x:x,y:y,r:1.5,rChange:0.015,maxR:r1,minR:r2,m:(r1*r1+r2*r2)/5})
     if(points.length==3){
         hull=giftWrapping();
         drawPolygon(hull);
@@ -227,13 +231,17 @@ function calculateMovement() {
     let f = 0;
     let ax = 0;
     let ay = 0;
+    for (let i = 0; i < particles.length; i++) {
+        particles[i].f=0;
+    }
+    let a=0;
     for (let i = 0; i < particles.length - 1; i++) {
         for (let j = i + 1; j < particles.length; j++) {
             
             dx = particles[i].x - particles[j].x;
             dy = particles[i].y - particles[j].y;
             dsq = Math.pow(dx, 2) + Math.pow(dy, 2);
-            f = 1 / dsq;
+            f = (Math.pow(particles[i].r*particles[j].r,2)/10) / dsq;
             if (f > forceCutoff) f = forceCutoff;
             d = Math.sqrt(dsq);
             ax = speed * f * dx / d;
@@ -242,6 +250,9 @@ function calculateMovement() {
             particles[i].vy -= ay;
             particles[j].vx += ax;
             particles[j].vy += ay;
+            
+            particles[i].f+=f;
+            particles[j].f+=f;
         }
     }
 }
@@ -358,13 +369,25 @@ function smooth(n){
 }
 
 function drawPoints(points){
-    ctxP.fillStyle='white'
+    
    ctxP.clearRect(0,0,w,h)
-   ctxP.shadowBlur=8;
+   ctxP.shadowBlur=10;
    ctxP.shadowColor='white';
     let l=0;
-    ctxP.beginPath();
+    
     for(let p of points){
+        if(p.vx!=null||p.vy!=null){
+            let v=p.f*speed*8
+            if(v<1) v=1
+            // console.log(v)
+            ctxP.fillStyle=getColorFromGradient(1-1/v)
+            ctxP.shadowColor=getColorFromGradient(1-1/v);
+        }else{
+            ctxP.fillStyle='white'
+            ctxP.shadowColor='white';
+        }
+        
+        ctxP.beginPath();
         if (p.r > p.maxR || p.r < p.minR){
             p.rChange = - p.rChange;
         }
@@ -372,10 +395,11 @@ function drawPoints(points){
         
         ctxP.moveTo(p.x,p.y);
         ctxP.arc(p.x,p.y,p.r*2,0,2*Math.PI);
+        ctxP.fill();
+    ctxP.closePath();
     }
     
-    ctxP.fill();
-    ctxP.closePath();
+    
 }
 
 function drawPolygon(points){
@@ -432,4 +456,23 @@ function getLowestPoint(){
         }
     }
     return maxI;
+}
+
+//colorGradient=[[0,0,0],[0,0,1],[0,1,1],[0,1,0],[1,1,0],[1,0,0]];
+
+/**
+ * 
+ * @param {Number} v [0,1)
+ */
+function getColorFromGradient(v){
+    let l=colorGradient.length;
+    let pos=v*(l-1);
+    let box=Math.min(l-1,Math.floor(pos));
+    let d=pos%1;
+    let from=colorGradient[box]
+    let to=colorGradient[box+1]
+    let r=Math.min(255,Math.floor((from[0]+(to[0]-from[0])*d)*256))
+    let g=Math.min(255,Math.floor((from[1]+(to[1]-from[1])*d)*256))
+    let b=Math.min(255,Math.floor((from[2]+(to[2]-from[2])*d)*256))
+    return 'rgb('+r+','+g+','+b+')'
 }
