@@ -297,7 +297,7 @@ function removeStar(x){
 }
 
 function addParticle(p){
-    speed=Math.min(6000,16000/particles.length);
+    speed=Math.min(6000,10000/particles.length);
     p.vx=0;
     p.vy=0;
     particles.push(p);
@@ -377,7 +377,7 @@ function drawPoints(points){
     
     for(let p of points){
         if(p.vx!=null||p.vy!=null){
-            let v=p.f*speed*8
+            let v=p.f*speed*11
             if(v<1) v=1
             // console.log(v)
             ctxP.fillStyle=getColorFromGradient(1-1/v)
