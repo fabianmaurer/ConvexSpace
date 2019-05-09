@@ -42,7 +42,7 @@ let stars=[];
 let randomness=0;
 let initialVelocityFactor = 1;
 
-colorGradient=[[0.2,0.2,0.8],[1,0,0],[1,1,1]];
+const colorGradient=[[0.2,0.2,0.8],[1,0,0],[1,1,1]];
 
 let forceCutoff = 0.00003;
 let speed = 4000;
@@ -272,8 +272,8 @@ function move() {
         particles[i].x += particles[i].vx;
         particles[i].y += particles[i].vy;
         if(!isPointInPolygon(hull,particles[i])){
-            let x=center.x-25+Math.random()*50;
-            let y=center.y-25+Math.random()*50;
+            let x=center.x-100+Math.random()*200;
+            let y=center.y-100+Math.random()*200;
             particles[i].x = x;
             particles[i].y = y;
             particles[i].lastx=x;
@@ -371,8 +371,8 @@ function smooth(n){
 function drawPoints(points){
     
    ctxP.clearRect(0,0,w,h)
-   ctxP.shadowBlur=10;
-   ctxP.shadowColor='white';
+//    ctxP.shadowBlur=10;
+//    ctxP.shadowColor='white';
     let l=0;
     
     for(let p of points){
@@ -381,10 +381,12 @@ function drawPoints(points){
             if(v<1) v=1
             // console.log(v)
             ctxP.fillStyle=getColorFromGradient(1-1/v)
-            ctxP.shadowColor=getColorFromGradient(1-1/v);
+            // ctxP.shadowColor=getColorFromGradient(1-1/v);
+            ctxP.shadowBlur=0;
         }else{
             ctxP.fillStyle='white'
-            ctxP.shadowColor='white';
+               ctxP.shadowBlur=10;
+   ctxP.shadowColor='white';
         }
         
         ctxP.beginPath();
@@ -403,7 +405,7 @@ function drawPoints(points){
 }
 
 function drawPolygon(points){
-    ctxL.strokeStyle='rgba(255,255,255,0.2)'
+    ctxL.strokeStyle='rgba(255,255,255,0.1)'
     ctxL.lineWidth=6
     ctxL.beginPath();
     ctxL.moveTo(points[points.length-1].x,points[points.length-1].y);
