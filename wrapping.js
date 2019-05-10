@@ -199,10 +199,6 @@ function drawPolygonChange(points,oldPoints){
     }else{
         let i=findExtra(points,oldPoints);
         let j=findExtra(oldPoints,points);
-        console.log(i)
-        console.log(j)
-        console.log(oldPoints)
-        console.log(points)
         if(i==null){
             // stars.pop();
             return true;
@@ -210,8 +206,6 @@ function drawPolygonChange(points,oldPoints){
         removed.push({x:oldPoints[i].x,y:oldPoints[i].y});
         let target={x:points[j].x,y:points[j].y};
         let start={x:oldPoints[i].x,y:oldPoints[i].y}
-        console.log(start)
-        console.log(target)
         // debugger;
         points[j]=start;
         let dx=target.x-start.x;
@@ -372,7 +366,7 @@ function polygonAnimationLoop(points,_is,_tx,_ty,progress){
 }
 
 function smooth(n){
-    return (animationFrames*(1-Math.pow(1-n/animationFrames,2)));
+    return (animationFrames*(1-Math.pow(1-n/animationFrames,1)));
 }
 
 function drawPoints(points){
