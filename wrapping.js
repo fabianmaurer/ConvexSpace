@@ -49,7 +49,7 @@ let speed = 4000;
 
 let different=[]
 
-const animationFrames=40;
+const animationFrames=100;
 
 let removed=[];
 let displaySet=[];
@@ -80,6 +80,7 @@ function addPoint(x,y){
         center=getCenter(hull);
         getHullDimensions();
     }else if(points.length>3){
+        finishAnimation();
         let old=JSON.parse(JSON.stringify(hull));
         hull=giftWrapping();
         getHullDimensions();
@@ -363,6 +364,24 @@ function polygonAnimationLoop(points,_is,_tx,_ty,progress){
     ty=_ty;
     animProgress=progress;
     polygonAnimation=true;
+}
+
+function finishAnimation(){
+    if(polygonAnimation){
+        let j=0;
+        oldPoints[j].x=tx
+        oldPoints[j].y=ty
+
+        for(let i of is){
+            displaySet[i].x=oldPoints[j].x
+            displaySet[i].y=oldPoints[j].y
+            j++;
+        }
+        ctxL.clearRect(0,0,w,h);
+        drawPolygon(displaySet);
+        animProgress=animationFrames
+        polygonAnimation=false;
+    }
 }
 
 function smooth(n){
